@@ -1,10 +1,192 @@
 import React, { useState, useEffect } from "react";
-import { Star, Github, Mail, Instagram, Linkedin } from "lucide-react";
+import {
+  Star,
+  Github,
+  Mail,
+  Instagram,
+  Linkedin,
+  MessageCircle,
+  Send,
+  X,
+  Bot,
+  User,
+} from "lucide-react";
 
 const Profile = () => {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [visibleSections, setVisibleSections] = useState(new Set());
   const [activeSection, setActiveSection] = useState("profile");
+
+  // Chatbot states
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [messages, setMessages] = useState([
+    {
+      id: 1,
+      text: "Hi! Saya adalah chatbot dari Riza. Ada yang bisa saya bantu? 😊",
+      isBot: true,
+      timestamp: new Date(),
+    },
+  ]);
+  const [inputMessage, setInputMessage] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+
+  // Predefined responses for the chatbot
+  const botResponses = {
+    greeting: [
+      "Halo! Senang bertemu dengan Anda! 👋",
+      "Hi there! Ada yang bisa saya bantu?",
+      "Selamat datang! Bagaimana kabar Anda hari ini?",
+    ],
+    about: [
+      "Riza adalah seorang Frontend Developer dan mahasiswa Informatika di ITENAS. Dia berpengalaman dalam HTML, CSS, JavaScript, React, dan berbagai framework CSS seperti Bootstrap dan TailwindCSS.",
+      "Riza sedang mengembangkan kemampuan Fullstack dengan belajar backend development menggunakan PHP, Laravel, dan Express.js.",
+    ],
+    detail: [
+      "Riza adalah mahasiswa ITENAS yang mengambil jurusan Informatika, seorang Frontend Engineer, dan saat ini sedang mempelajari keterampilan Fullstack Engineer untuk meningkatkan kemampuannya dalam mengembangkan aplikasi web secara komprehensif.",
+    ],
+    projects: [
+      "Riza memiliki beberapa project menarik seperti SIMS (Student Information Management System), CSecurity Blog, QUIZZARD, Waste Management System, KlinKlin Laundry, dan AgriMarket.",
+      "Salah satu project yang sedang dikerjakan adalah QUIZZARD - platform quiz online yang interaktif dan menyenangkan!",
+    ],
+    contact: [
+      "Anda bisa menghubungi Riza melalui email di riza80448@gmail.com atau mengunjungi profile Instagram dan GitHub nya!",
+      "Untuk informasi lebih lanjut, scroll ke bagian Contact di bawah website ini.",
+    ],
+    skills: [
+      "Riza memiliki kemampuan dalam Frontend Development dengan HTML, CSS, JavaScript, React, Bootstrap, dan TailwindCSS. Dia juga sedang belajar Backend dengan PHP, Laravel, dan Express.js.",
+      "Tech stack yang sering digunakan Riza termasuk Laravel, TailwindCSS, ExpressJS, React, dan Spring Boot.",
+    ],
+    thank: [
+      "Terima kasih telah menghubungi Riza! Jika ada pertanyaan lebih lanjut, jangan ragu untuk bertanya.",
+      "Saya senang bisa membantu Anda! Jika ada yang ingin ditanyakan, silakan sampaikan.",
+    ],
+    default: [
+      "Maaf, saya tidak terlalu paham dengan pertanyaan itu. Bisa coba tanya tentang Riza, project-projectnya, atau skill yang dimilikinya?",
+      "Hmm, menarik! Tapi saya lebih bisa membantu dengan informasi tentang Riza dan karya-karyanya. Ada yang mau ditanyakan tentang itu?",
+      "Saya masih chatbot sederhana. Coba tanyakan tentang background Riza, project yang dikerjakan, atau cara menghubunginya!",
+    ],
+  };
+
+  const getResponse = (userMessage) => {
+    const message = userMessage.toLowerCase();
+
+    if (
+      message.includes("halo") ||
+      message.includes("hai") ||
+      message.includes("hello") ||
+      message.includes("hi")
+    ) {
+      return botResponses.greeting[
+        Math.floor(Math.random() * botResponses.greeting.length)
+      ];
+    }
+
+    if (
+      message.includes("tentang") ||
+      message.includes("about") ||
+      message.includes("profil")
+    ) {
+      return botResponses.about[
+        Math.floor(Math.random() * botResponses.about.length)
+      ];
+    }
+
+    if (
+      message.includes("project") ||
+      message.includes("portofolio") ||
+      message.includes("karya") ||
+      message.includes("aplikasi")
+    ) {
+      return botResponses.projects[
+        Math.floor(Math.random() * botResponses.projects.length)
+      ];
+    }
+
+    if (
+      message.includes("kontak") ||
+      message.includes("contact") ||
+      message.includes("hubungi") ||
+      message.includes("email")
+    ) {
+      return botResponses.contact[
+        Math.floor(Math.random() * botResponses.contact.length)
+      ];
+    }
+
+    if (
+      message.includes("skill") ||
+      message.includes("kemampuan") ||
+      message.includes("teknologi") ||
+      message.includes("bahasa")
+    ) {
+      return botResponses.skills[
+        Math.floor(Math.random() * botResponses.skills.length)
+      ];
+    }
+
+    if (
+      message.includes("terima kasih") ||
+      message.includes("makasih") ||
+      message.includes("thank you")
+    ) {
+      return botResponses.thank[
+        Math.floor(Math.random() * botResponses.thank.length)
+      ];
+    }
+
+    if (
+      message.includes("siapa") ||
+      message.includes("who") ||
+      message.includes("detail") ||
+      message.includes("thank you") ||
+      message.includes("detail tentang riza") ||
+      message.includes("detail riza") ||
+      message.includes("info riza") ||
+      message.includes("informasi riza")
+    ) {
+      return botResponses.detail[
+        Math.floor(Math.random() * botResponses.detail.length)
+      ];
+    }
+
+    return botResponses.default[
+      Math.floor(Math.random() * botResponses.default.length)
+    ];
+  };
+
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim()) return;
+
+    const userMessage = {
+      id: Date.now(),
+      text: inputMessage,
+      isBot: false,
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInputMessage("");
+    setIsTyping(true);
+
+    // Simulate typing delay
+    setTimeout(() => {
+      const botMessage = {
+        id: Date.now() + 1,
+        text: getResponse(inputMessage),
+        isBot: true,
+        timestamp: new Date(),
+      };
+
+      setMessages((prev) => [...prev, botMessage]);
+      setIsTyping(false);
+    }, 1000 + Math.random() * 1000);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSendMessage();
+    }
+  };
 
   useEffect(() => {
     const sections = document.querySelectorAll("section[id]");
@@ -141,7 +323,7 @@ const Profile = () => {
                 onClick={(e) => scrollToSection(e, section)}
                 className={`text-sm sm:text-lg font-semibold px-7 py-2 mx-5 rounded-full transition-all duration-300 capitalize ${
                   activeSection === section
-                    ? "bg-cyan-500 text-white scale-105"
+                    ? "bg-cyan-400 text-white scale-105"
                     : "text-cyan-300 hover:text-white hover:bg-cyan-500 hover:scale-105"
                 }`}
               >
@@ -400,16 +582,111 @@ const Profile = () => {
         </div>
       </section>
 
-      {/* Back to Top Button */}
-      {showBackToTop && (
+      {/* Chatbot */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+        {/* Chat Window */}
+        {isChatOpen && (
+          <div className="mb-4 w-80 h-96 bg-gray-900/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-700 flex flex-col overflow-hidden">
+            {/* Chat Header */}
+            <div className="bg-gradient-to-r from-cyan-500 to-blue-500 p-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Bot className="w-6 h-6 text-white" />
+                <span className="text-white font-semibold">
+                  Chat with Riza Bot
+                </span>
+              </div>
+              <button
+                onClick={() => setIsChatOpen(false)}
+                className="text-white hover:text-gray-200 transition-colors hover:cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Messages */}
+            <div className="flex-1 p-4 overflow-y-auto space-y-3">
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex items-start gap-2 ${
+                    message.isBot ? "justify-start" : "justify-end"
+                  }`}
+                >
+                  {message.isBot && (
+                    <div className="bg-cyan-500 p-1 rounded-full flex-shrink-0">
+                      <Bot className="w-4 h-4 text-white" />
+                    </div>
+                  )}
+                  <div
+                    className={`max-w-[200px] p-3 rounded-2xl text-sm ${
+                      message.isBot
+                        ? "bg-gray-800 text-gray-100"
+                        : "bg-cyan-500 text-white"
+                    }`}
+                  >
+                    {message.text}
+                  </div>
+                  {!message.isBot && (
+                    <div className="bg-gray-600 p-1 rounded-full flex-shrink-0">
+                      <User className="w-4 h-4 text-white" />
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {/* Typing Indicator */}
+              {isTyping && (
+                <div className="flex items-start gap-2">
+                  <div className="bg-cyan-500 p-1 rounded-full flex-shrink-0">
+                    <Bot className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="bg-gray-800 p-3 rounded-2xl">
+                    <div className="flex gap-1">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                      <div
+                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.1s" }}
+                      ></div>
+                      <div
+                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.2s" }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Input */}
+            <div className="p-4 border-t border-gray-700">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Ketik pesan..."
+                  className="flex-1 bg-gray-800 text-white px-3 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                />
+                <button
+                  onClick={handleSendMessage}
+                  className="bg-cyan-500 text-white p-2 rounded-full hover:bg-cyan-600 transition-colors"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Chat Toggle Button */}
         <button
-          onClick={scrollToTop}
-          className="fixed bottom-6 right-6 bg-gradient-to-r from-cyan-500 to-blue-500 text-white border-none p-4 rounded-full cursor-pointer text-xl leading-none hover:scale-110 transition-all duration-300 z-50 shadow-2xl"
-          aria-label="Back to top"
+          onClick={() => setIsChatOpen(!isChatOpen)}
+          className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-3 rounded-full shadow-2xl hover:cursor-pointer hover:scale-110 transition-all duration-300 relative"
         >
-          ↑
+          <MessageCircle className="w-6 h-6" />
         </button>
-      )}
+      </div>
 
       <style jsx>{`
         @import url("https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Dancing+Script:wght@400;500;600;700&display=swap");
