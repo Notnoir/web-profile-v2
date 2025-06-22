@@ -1,8 +1,31 @@
 import React, { useState, useEffect } from "react";
+import { Star, Github, Mail, Instagram, Linkedin } from "lucide-react";
 
 const Profile = () => {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [visibleSections, setVisibleSections] = useState(new Set());
+  const [activeSection, setActiveSection] = useState("profile");
+
+  useEffect(() => {
+    const sections = document.querySelectorAll("section[id]");
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      {
+        threshold: 0.1, // bisa diatur sesuai kebutuhan
+      }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -116,7 +139,11 @@ const Profile = () => {
                 key={section}
                 href={`#${section}`}
                 onClick={(e) => scrollToSection(e, section)}
-                className="text-cyan-300 text-sm sm:text-lg font-semibold px-7 py-2 mx-5 rounded-full transition-all duration-300 hover:text-white hover:bg-cyan-500 hover:scale-105 capitalize"
+                className={`text-sm sm:text-lg font-semibold px-7 py-2 mx-5 rounded-full transition-all duration-300 capitalize ${
+                  activeSection === section
+                    ? "bg-cyan-500 text-white scale-105"
+                    : "text-cyan-300 hover:text-white hover:bg-cyan-500 hover:scale-105"
+                }`}
               >
                 {section}
               </a>
@@ -339,22 +366,22 @@ const Profile = () => {
                 <div className="flex flex-wrap gap-4">
                   <a
                     href="https://www.instagram.com/rizamaulana04/"
-                    className="bg-gradient-to-r from-pink-500 to-purple-500 px-6 py-3 rounded-full text-white font-medium no-underline hover:scale-105 transition-transform duration-300 shadow-lg"
+                    className="bg-gradient-to-r from-pink-500 to-purple-500 px-3 py-3 rounded-full text-white font-medium no-underline hover:scale-105 transition-transform duration-300 shadow-lg"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    Instagram
+                    <Instagram className="w-6 h-6" />
                   </a>
                   <a
                     href="https://github.com/Notnoir"
-                    className="bg-gradient-to-r from-gray-700 to-gray-900 px-6 py-3 rounded-full text-white font-medium no-underline hover:scale-105 transition-transform duration-300 shadow-lg"
+                    className="flex items-center justify-center bg-gradient-to-r from-gray-800 to-gray-900 px-3 py-3 rounded-full text-white font-medium no-underline hover:scale-105 transition-transform duration-300 shadow-lg"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    GitHub
+                    <Github className="w-6 h-6" />
                   </a>
-                  <span className="bg-gradient-to-r from-blue-500 to-blue-700 px-6 py-3 rounded-full text-white font-medium shadow-lg">
-                    LinkedIn
+                  <span className="bg-gradient-to-r from-blue-500 to-blue-700 px-3 py-3 rounded-full text-white font-medium shadow-lg">
+                    <Linkedin className="w-6 h-6" />
                   </span>
                 </div>
               </div>
